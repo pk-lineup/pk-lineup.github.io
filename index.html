@@ -92,6 +92,9 @@ input[type=search]::placeholder{color:var(--faint)}
 #pclose{display:none}
 @media (max-width:959px){
   .main{grid-template-columns:minmax(0,1fr)}
+  .main>.leftcol,.main>.rightcol{display:grid;gap:10px;min-width:0}
+  .main>.leftcol{order:-2}.main>.rightcol{order:-1}
+  .main>.rightcol:has(#runbar[hidden]){display:contents}
   .field{width:calc(100% + 32px);max-width:none;margin-inline:-16px;border-radius:0;border-inline:0}
   .panel{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:76vh;max-height:76dvh;border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .2s ease;z-index:20;box-shadow:0 -12px 32px rgba(0,0,0,.7);visibility:hidden}
   .panel.open{transform:none;visibility:visible}
@@ -107,6 +110,38 @@ input[type=search]::placeholder{color:var(--faint)}
   .controls .chk{grid-column:1/-1;min-height:28px}
   .wrap{gap:16px}
 }
+
+.modebar{display:flex;gap:6px;align-items:center}
+.tab{font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--line-2);border-radius:2px;padding:0 10px;min-height:38px;cursor:pointer;white-space:nowrap}
+.tab em{font:700 11px/1 var(--f-jp);font-style:normal;margin-left:4px;opacity:.7}
+.tab.on{color:var(--accent-ink);background:var(--ink);border-color:var(--ink)}
+.runbar{display:flex;flex-direction:column;align-items:stretch;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;width:100%}
+.runbar[hidden]{display:none}
+.steps{display:flex;gap:6px;font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.steps span{padding:7px 9px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.steps span.on{color:var(--ink);border-color:var(--ink)}.steps span.done{color:var(--muted)}
+.ink,.rbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ink[hidden]{display:none}
+
+.rhint{margin:0;color:var(--muted);font:400 12px/1.5 var(--f-mono)}
+.sw{width:30px;height:30px;border-radius:50%;background:var(--c);border:2px solid #000;box-shadow:0 0 0 1px var(--line-2);cursor:pointer;padding:0}
+.sw.on{box-shadow:0 0 0 2px var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+#draw{pointer-events:none;z-index:4000}
+.field.drawing #draw{pointer-events:auto;touch-action:none;cursor:crosshair}
+.field.locked .slot{pointer-events:none}
+.leftcol,.rightcol{display:contents}
+
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.tools[hidden]{display:none}
+.tl{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--line-2);border-radius:2px;padding:0 12px;min-height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.tl.on{color:var(--accent-ink);background:var(--ink);border-color:var(--ink)}
+.tl i{width:22px;border-top:2px dotted currentColor;display:inline-block}
+.ball{position:absolute;width:4.2cqw;height:2.5cqw;margin:0;border-radius:50%/62%;background:radial-gradient(ellipse at 35% 30%,#b9682f,#7a3d17 70%);box-shadow:0 .2cqw .5cqw rgba(0,0,0,.5);pointer-events:none}
+.ball::before{content:"";position:absolute;left:22%;right:22%;top:48%;border-top:.3cqw solid rgba(255,255,255,.9)}
+.ball::after{content:"";position:absolute;left:40%;right:40%;top:30%;bottom:30%;border-left:.25cqw solid rgba(255,255,255,.8);border-right:.25cqw solid rgba(255,255,255,.8)}
+.ball[hidden],.ballsh[hidden]{display:none}
+.ballsh{position:absolute;width:3.6cqw;height:1.2cqw;border-radius:50%;background:rgba(0,0,0,.4);pointer-events:none}
 .lineup,.dhint{display:none}
 .slot.over .tok{outline:.5cqw solid var(--accent);outline-offset:.35cqw}
 .slot.over .tok.sprite{outline:none;filter:drop-shadow(0 0 .6cqw var(--accent)) drop-shadow(0 0 .6cqw var(--accent))}
@@ -124,7 +159,8 @@ input[type=search]::placeholder{color:var(--faint)}
   .fieldcol{display:flex;justify-content:center}
   .lab{font-size:max(7px,2cqw)}.lab b{font-size:max(6px,1.7cqw)}
   .field{width:min(100%,calc((100vh - 120px)/var(--A,1)));max-width:1240px;margin-inline:auto}
-  .lineup{display:flex;flex-direction:column;gap:1px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 10px;scrollbar-color:var(--line-2) transparent}
+  .leftcol,.rightcol{display:flex;flex-direction:column;gap:12px;position:sticky;top:16px;max-height:calc(100vh - 32px);min-height:0}
+  .lineup{display:flex;flex-direction:column;gap:1px;flex:1;min-height:0;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 10px;scrollbar-color:var(--line-2) transparent}
   .ln-h{display:flex;align-items:baseline;gap:8px;margin:6px 6px 6px;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .ln-h:first-child{margin-top:0}
   .ln-h em{font:700 11px/1 var(--f-jp);font-style:normal;color:var(--faint)}
@@ -138,7 +174,8 @@ input[type=search]::placeholder{color:var(--faint)}
   .ln-ic img{width:100%;height:100%;object-fit:contain}
   .ln-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ln-name.none{color:var(--faint)}
-  .panel{position:sticky;top:16px;max-height:calc(100vh - 32px)}
+  .panel{position:static;flex:1;min-height:0;max-height:none}
+  body.runlock #panel{display:none}
   .dhint{display:block;margin:0;color:var(--muted);font:400 12px/1.5 var(--f-mono)}
   .grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .cell{padding:9px 4px}
@@ -170,8 +207,38 @@ input[type=search]::placeholder{color:var(--faint)}
   <p class="note" id="spNote" hidden><span id="spStatus"></span><button class="btn sm" id="spClear" type="button" hidden>Remove custom sprites</button></p>
 
   <div class="main">
+    <div class="leftcol">
+<div class="modebar" role="tablist"><button type="button" class="tab on" id="tabLineup">Lineup</button><button type="button" class="tab" id="tabRun">Run plays <em lang="ja">戦術</em></button></div>
     <aside class="lineup" id="lineup" aria-label="Lineup"></aside>
-    <div class="fieldcol"><div class="field" id="field"></div></div>
+    </div>
+    <div class="fieldcol">
+<div class="field" id="field"></div></div>
+    <div class="rightcol">
+    <div class="runbar" id="runbar" hidden>
+        <div class="steps" id="steps"><span data-s="1">1 · Set up</span><span data-s="2">2 · Draw</span><span data-s="3">3 · Play</span></div>
+        <div class="tools" id="tools" hidden>
+          <button type="button" class="tl on" data-t="pen">Line</button>
+          <button type="button" class="tl" data-t="arrow">Arrow</button>
+          <button type="button" class="tl" data-t="block">Block</button>
+          <button type="button" class="tl" data-t="ball">Ball <i></i></button>
+        </div>
+        <div class="ink" id="ink" hidden>
+          <button type="button" class="sw" data-c="yellow" style="--c:#ffe21f" aria-label="Yellow marker"></button>
+          <button type="button" class="sw" data-c="white" style="--c:#fff" aria-label="White marker"></button>
+          <button type="button" class="sw" data-c="red" style="--c:#ff3b30" aria-label="Red marker"></button>
+          <button type="button" class="sw" data-c="green" style="--c:#2fd653" aria-label="Green marker"></button>
+          <button type="button" class="sw" data-c="blue" style="--c:#3aa0ff" aria-label="Blue marker"></button>
+        </div>
+        <div class="rbtns">
+          <button type="button" class="btn sm" id="rBack" hidden>Back</button>
+          <button type="button" class="btn sm" id="rUndo" hidden>Undo</button>
+          <button type="button" class="btn sm" id="rClear" hidden>Clear</button>
+          <button type="button" class="btn primary" id="rSet">Set</button>
+          <button type="button" class="btn primary" id="rPlay" hidden>Play</button>
+          <button type="button" class="btn" id="rReset" hidden>Reset</button>
+        </div>
+        <p class="rhint" id="rhint"></p>
+      </div>
     <aside class="panel" id="panel" aria-label="Player picker">
       <div id="phint" class="hint">Select a slot on the field to choose who plays there.</div>
       <div id="pbody" hidden>
@@ -185,6 +252,7 @@ input[type=search]::placeholder{color:var(--faint)}
         <div class="grid" id="grid"></div>
       </div>
     </aside>
+    </div>
   </div>
 
   <p class="legal">Unofficial, free fan project made for fun. Not affiliated with or endorsed by Nintendo, Game Freak, Creatures or The Pokémon Company. Pokémon and Pokémon character names are trademarks of their respective owners. Character images are loaded from a public sprite collection and are not stored on this site.</p>
@@ -297,8 +365,8 @@ function mkCam(p){
   const bot=raw(0,YB)[1],top=raw(0,YT)[1];
   return {...p,c,s,K,A:p.top+K*(bot-top),vOff:p.top-K*top};
 }
-function proj(X,Y){
-  const dy=Y+cam.d,zc=dy*cam.c+cam.h*cam.s,yc=dy*cam.s-cam.h*cam.c;
+function proj(X,Y,Z){
+  const dz=(Z||0)-cam.h,dy=Y+cam.d,zc=dy*cam.c-dz*cam.s,yc=dy*cam.s+dz*cam.c;
   return {u:.5+cam.K*(X-FW/2)/zc,v:cam.vOff-cam.K*yc/zc,w:cam.K/zc};
 }
 function unproj(u,v){
@@ -458,7 +526,7 @@ function drawTurf(force){
 }
 
 const fieldEl=$("#field");
-fieldEl.innerHTML='<canvas id="turf" aria-hidden="true"></canvas><div class="tag d">Defense <em lang="ja">守備</em></div><div class="tag o">Offense <em lang="ja">攻撃</em></div><div id="slots"></div>';
+fieldEl.innerHTML='<canvas id="turf" aria-hidden="true"></canvas><div class="tag d">Defense <em lang="ja">守備</em></div><div class="tag o">Offense <em lang="ja">攻撃</em></div><div id="slots"></div><div class="ballsh" id="ballsh" hidden></div><canvas id="draw" aria-hidden="true"></canvas><div class="ball" id="ball" hidden></div>';
 const turf=$("#turf"),slotsEl=$("#slots");
 function ensureCam(){
   const k=wide.matches?"desk":"phone";
@@ -469,7 +537,7 @@ function ensureCam(){
   turfSig="";
 }
 let rzT=0;
-new ResizeObserver(()=>{clearTimeout(rzT);rzT=setTimeout(()=>{ensureCam();drawTurf();renderField()},90)}).observe(fieldEl);
+new ResizeObserver(()=>{clearTimeout(rzT);rzT=setTimeout(()=>{ensureCam();drawTurf();renderField();if(typeof drawRoutes==="function"){drawRoutes();if(RUN.anim)paintAnim(RUN.anim);else ballIdle()}},90)}).observe(fieldEl);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{drawTurf(true)});
 function placeSlot(d,s,extraZ){
   const p=proj(s.x/100*FW,(100-s.y)/100*FLEN);
@@ -772,6 +840,304 @@ $("#files").addEventListener("change",async e=>{
   renderField();if(sel)renderGrid();
 });
 $("#spClear").addEventListener("click",()=>{sprites.clear();idbClear();spriteStatus();renderField();if(sel)renderGrid()});
+
+/* ---------- run plays ---------- */
+const INK={yellow:"#ffe21f",white:"#ffffff",red:"#ff3b30",green:"#2fd653",blue:"#3aa0ff"};
+const OFF_SPEED=5,DEF_SPEED=1,YPS=0.8; /* speed out of 10; yards per second = speed * YPS (5 -> 4 yd/s, 0.5 -> 0.4 yd/s) */
+const BALL_YPS=14,HAND=2.2,FRONT=.7,LEAD=10; /* LEAD: the throw happens when the receiver is this many yards from the end of his route */      /* ball flight speed (yd/s), hand height (yd), how far in front of the feet a line starts (yd) */
+const RUN={on:false,step:1,tool:"pen",color:INK.yellow,routes:Array(11).fill(null),balls:[],undo:[],drawing:null,anim:null};
+const dv=$("#draw"),ballEl=$("#ball"),ballSh=$("#ballsh");
+const wOf=s=>({X:s.x/100*FW,Y:(100-s.y)/100*FLEN});
+const baseOf=s=>({X:s.x/100*FW,Y:(100-s.y)/100*FLEN+FRONT});
+const clampW=p=>({X:Math.min(FW*.98,Math.max(FW*.02,p.X)),Y:Math.min(FLEN*.98,Math.max(FLEN*.02,p.Y))});
+const hasAny=()=>RUN.routes.some(Boolean)||RUN.balls.length>0;
+function pushUndo(){RUN.undo.push(JSON.stringify({routes:RUN.routes,balls:RUN.balls}));if(RUN.undo.length>60)RUN.undo.shift()}
+function snapPair(){
+  const S=state.off.slots,c=S.findIndex(s=>s.pos==="C"),q=S.findIndex(s=>s.pos==="QB");
+  return c>=0&&q>=0?{c,q}:null;
+}
+
+/* ----- drawing the marker lines ----- */
+function strokeRoute(ctx,r,pw,alpha){
+  if(!r||r.pts.length<2)return;
+  const P=r.pts.map(p=>{const q=proj(p.X,p.Y);return{x:q.u*pw,y:q.v*pw,w:q.w*pw}});
+  const mid=P[P.length>>1];
+  const path=()=>{ctx.beginPath();ctx.moveTo(P[0].x,P[0].y);for(let i=1;i<P.length;i++)ctx.lineTo(P[i].x,P[i].y)};
+  ctx.save();ctx.globalAlpha=alpha==null?1:alpha;ctx.lineCap="round";ctx.lineJoin="round";
+  if(r.ball){
+    const lw=Math.max(1.5,mid.w*.17);
+    ctx.setLineDash([lw*3.2,lw*3.2]);
+    ctx.strokeStyle="rgba(0,0,0,.45)";ctx.lineWidth=lw+2;path();ctx.stroke();
+    ctx.strokeStyle="#fff";ctx.lineWidth=lw;path();ctx.stroke();
+    ctx.restore();return;
+  }
+  const lw=Math.max(2.6,mid.w*.55);
+  const e=P[P.length-1],b=P[Math.max(0,P.length-1-Math.min(8,P.length-1))];
+  const ang=Math.atan2(e.y-b.y,e.x-b.x);
+  const mark=()=>{
+    ctx.beginPath();
+    if(r.mark==="arrow"){const ah=lw*4.2;for(const s of[-1,1]){ctx.moveTo(e.x,e.y);ctx.lineTo(e.x-Math.cos(ang+s*.5)*ah,e.y-Math.sin(ang+s*.5)*ah)}}
+    else if(r.mark==="block"){const h=lw*3.4,px=Math.cos(ang+Math.PI/2)*h,py=Math.sin(ang+Math.PI/2)*h;ctx.moveTo(e.x-px,e.y-py);ctx.lineTo(e.x+px,e.y+py)}
+  };
+  ctx.strokeStyle="rgba(0,0,0,.5)";ctx.lineWidth=lw+3.2;path();ctx.stroke();
+  if(r.mark){mark();ctx.stroke()}
+  ctx.strokeStyle=r.color;ctx.lineWidth=lw;ctx.shadowColor=r.color;ctx.shadowBlur=lw*1.2;path();ctx.stroke();
+  if(r.mark){ctx.lineWidth=lw*(r.mark==="block"?1.15:1);mark();ctx.stroke()}
+  ctx.restore();
+}
+function drawRoutes(){
+  const pw=turf.width,ph=turf.height;
+  if(dv.width!==pw||dv.height!==ph){dv.width=pw;dv.height=ph}
+  const ctx=dv.getContext("2d");ctx.clearRect(0,0,pw,ph);
+  if(!RUN.on||!cam)return;
+  const dim=RUN.anim?.55:1;
+  for(const r of RUN.routes)strokeRoute(ctx,r,pw,dim);
+  for(const r of RUN.balls)strokeRoute(ctx,r,pw,dim);
+  if(RUN.drawing)strokeRoute(ctx,RUN.drawing,pw,1);
+}
+
+/* ----- hit testing ----- */
+function slotAt(cx,cy){
+  let best=null,bz=-1;
+  document.querySelectorAll(".slot.off").forEach(n=>{
+    const r=n.getBoundingClientRect();
+    if(cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom){const z=+n.style.zIndex||0;if(z>=bz){bz=z;best=+n.dataset.i}}
+  });
+  return best;
+}
+function playerNear(e,exclude){
+  let i=slotAt(e.clientX,e.clientY);
+  if(i!=null&&i!==exclude)return i;
+  const g=ptr(e),w=unproj(g.u,g.v);let bd=4;i=null;
+  state.off.slots.forEach((s,k)=>{if(k===exclude)return;const p=wOf(s),d=Math.hypot(p.X-w.X,p.Y-w.Y);if(d<bd){bd=d;i=k}});
+  return i;
+}
+function routeEndNear(e){
+  const g=ptr(e);let best=null,bd=.075;
+  RUN.routes.forEach((r,i)=>{
+    if(!r)return;const p=r.pts[r.pts.length-1],q=proj(p.X,p.Y),d=Math.hypot(q.u-g.u,q.v-g.v);
+    if(d<bd){bd=d;best=i}
+  });
+  return best;
+}
+
+dv.addEventListener("pointerdown",e=>{
+  if(!(RUN.on&&RUN.step===2))return;
+  e.preventDefault();
+  if(RUN.tool==="arrow"||RUN.tool==="block"){
+    let i=slotAt(e.clientX,e.clientY);
+    if(i==null||!RUN.routes[i])i=routeEndNear(e);
+    if(i==null||!RUN.routes[i])return;
+    pushUndo();
+    const r=RUN.routes[i];r.mark=r.mark===RUN.tool?null:RUN.tool;
+    drawRoutes();updateRun();return;
+  }
+  const i=playerNear(e,-1);
+  if(i==null)return;
+  const g=ptr(e),node=document.querySelector('.slot.off[data-i="'+i+'"]'),f=node&&node._feet;if(!f)return;
+  RUN.drawing={i,ball:RUN.tool==="ball",color:RUN.color,pts:[baseOf(state.off.slots[i])],ou:g.u-f.u,ov:g.v-f.v};
+  try{dv.setPointerCapture(e.pointerId)}catch(_){}
+});
+dv.addEventListener("pointermove",e=>{
+  const d=RUN.drawing;if(!d)return;
+  const g=ptr(e),p=clampW(unproj(g.u-d.ou,Math.min(cam.A-.01,Math.max(.03,g.v-d.ov))));
+  const l=d.pts[d.pts.length-1];
+  if(Math.hypot(p.X-l.X,p.Y-l.Y)>.45){d.pts.push(p);drawRoutes()}
+});
+function smooth(pts){
+  let a=pts;
+  for(let k=0;k<2;k++){a=a.map((p,i)=>i===0||i===a.length-1?p:{X:(a[i-1].X+p.X+a[i+1].X)/3,Y:(a[i-1].Y+p.Y+a[i+1].Y)/3})}
+  return a;
+}
+function endDraw(e){
+  const d=RUN.drawing;if(!d)return;
+  RUN.drawing=null;
+  let len=0;for(let k=1;k<d.pts.length;k++)len+=Math.hypot(d.pts[k].X-d.pts[k-1].X,d.pts[k].Y-d.pts[k-1].Y);
+  if(d.ball){
+    const to=e&&e.clientX!=null?playerNear(e,d.i):null;
+    if(to!=null&&len>=1.5){
+      pushUndo();
+      const pts=smooth(d.pts);pts[pts.length-1]=baseOf(state.off.slots[to]);
+      RUN.balls=RUN.balls.filter(b=>!(b.from===d.i&&b.to===to));
+      RUN.balls.push({ball:true,from:d.i,to,pts});
+    }
+  }else if(len>=2){
+    pushUndo();
+    RUN.routes[d.i]={pts:smooth(d.pts),color:d.color,mark:null};
+  }
+  drawRoutes();updateRun();
+}
+dv.addEventListener("pointerup",endDraw);dv.addEventListener("pointercancel",()=>{RUN.drawing=null;drawRoutes()});
+
+/* ----- the ball ----- */
+function placeBall(X,Y,Z,ang){
+  const g=proj(X,Y,Z),s=proj(X,Y,0);
+  const sc=cam.sb*Math.pow(Math.min(1.12,s.w*FW),cam.gam)*.95;
+  ballEl.style.left=(g.u*100).toFixed(3)+"%";ballEl.style.top=(g.v/cam.A*100).toFixed(3)+"%";
+  ballEl.style.transform="translate(-50%,-50%) rotate("+(ang||-25).toFixed(1)+"deg) scale("+sc.toFixed(3)+")";
+  ballEl.style.zIndex=Math.round(6000+Y*10);
+  ballSh.style.left=(s.u*100).toFixed(3)+"%";ballSh.style.top=(s.v/cam.A*100).toFixed(3)+"%";
+  ballSh.style.transform="translate(-50%,-50%) scale("+(sc*(1-Math.min(.5,(Z-HAND)/12))).toFixed(3)+")";
+  ballEl.hidden=false;ballSh.hidden=false;
+}
+function hideBall(){ballEl.hidden=true;ballSh.hidden=true}
+function ballIdle(){
+  const sp=snapPair();
+  if(!RUN.on||RUN.step<2||!sp||!cam){hideBall();return}
+  const w=wOf(state.off.slots[sp.c]);placeBall(w.X+.6,w.Y+.3,HAND);
+}
+
+/* ----- animation: offense follows its lines at 5/10, the ball snaps C -> QB then follows the dotted lines, defense drifts at 0.5/10 ----- */
+function stopAnim(){if(RUN.anim){cancelAnimationFrame(RUN.anim.raf);RUN.anim=null}}
+function nodeMap(){const m={};slotsEl.querySelectorAll(".slot").forEach(n=>{m[n.dataset.side+n.dataset.i]=n});return m}
+function paintAnim(A){
+  const nm=nodeMap();
+  A.off.forEach((o,i)=>{const n=nm["off"+i];if(n)placeSlot(n,{x:o.X/FW*100,y:100-o.Y/FLEN*100})});
+  A.def.forEach((o,i)=>{const n=nm["def"+i];if(n)placeSlot(n,{x:o.X/FW*100,y:100-o.Y/FLEN*100})});
+  const b=A.ball;
+  if(b.mode==="none"){hideBall();return}
+  let X=b.X,Y=b.Y,Z=b.Z;
+  if(b.mode==="held"){const h=A.off[b.holder];X=h.X+.6;Y=h.Y+.3;Z=HAND}
+  placeBall(X,Y,Z,b.ang);
+}
+function startPlay(){
+  stopAnim();renderField();
+  const off=state.off.slots.map((s,i)=>{const w=wOf(s),r=RUN.routes[i];return{X:w.X,Y:w.Y,path:r?[w,...r.pts]:null,seg:1}});
+  const def=state.def.slots.map(s=>{const w=wOf(s);return{X:w.X,Y:w.Y,target:-1}});
+  const pairs=[];def.forEach((d,a)=>off.forEach((o,b)=>pairs.push([Math.hypot(d.X-o.X,d.Y-o.Y),a,b])));
+  pairs.sort((p,q)=>p[0]-q[0]);
+  const usedA=new Set(),usedB=new Set();
+  for(const[,a,b]of pairs){if(usedA.has(a)||usedB.has(b))continue;usedA.add(a);usedB.add(b);def[a].target=b}
+  const sp=snapPair(),lines=RUN.balls.map(b=>({from:b.from,to:b.to,used:false}));
+  const ball=sp?{mode:"snap",target:sp.q,holder:sp.c,X:off[sp.c].X+.6,Y:off[sp.c].Y+.3,Z:HAND,dist0:Math.max(1,Math.hypot(off[sp.q].X-off[sp.c].X,off[sp.q].Y-off[sp.c].Y)),ang:-25}:{mode:"none"};
+  const A={off,def,ball,lines,last:0,done:false,raf:0};
+  RUN.anim=A;
+  const finished=o=>!o.path||o.seg>=o.path.length;
+  const remaining=o=>{
+    if(!o.path||o.seg>=o.path.length)return 0;
+    let d=Math.hypot(o.path[o.seg].X-o.X,o.path[o.seg].Y-o.Y);
+    for(let k=o.seg+1;k<o.path.length;k++)d+=Math.hypot(o.path[k].X-o.path[k-1].X,o.path[k].Y-o.path[k-1].Y);
+    return d;
+  };
+  const tick=t=>{
+    if(RUN.anim!==A)return;
+    const dt=A.last?Math.min(.05,(t-A.last)/1000):0;A.last=t;
+    let moving=false;
+    for(const o of off){
+      if(!o.path)continue;
+      let rem=OFF_SPEED*YPS*dt;
+      while(rem>0&&o.seg<o.path.length){
+        const tp=o.path[o.seg],dx=tp.X-o.X,dy=tp.Y-o.Y,d=Math.hypot(dx,dy);
+        if(d<=rem){o.X=tp.X;o.Y=tp.Y;o.seg++;rem-=d}else{o.X+=dx/d*rem;o.Y+=dy/d*rem;rem=0}
+      }
+      if(o.seg<o.path.length)moving=true;
+    }
+    for(const d of def){
+      const tg=off[d.target];if(!tg)continue;
+      const dx=tg.X-d.X,dy=tg.Y-d.Y,dist=Math.hypot(dx,dy);
+      if(dist>1){const st=Math.min(dist-1,DEF_SPEED*YPS*dt);d.X+=dx/dist*st;d.Y+=dy/dist*st}
+    }
+    const b=A.ball;
+    if(b.mode==="snap"||b.mode==="flight"){
+      const tg=off[b.target],tx=tg.X+.6,ty=tg.Y+.3,dx=tx-b.X,dy=ty-b.Y,dist=Math.hypot(dx,dy);
+      const step=BALL_YPS*dt;
+      if(dist<=Math.max(step,.5)){b.mode="held";b.holder=b.target;b.Z=HAND}
+      else{
+        b.X+=dx/dist*step;b.Y+=dy/dist*step;
+        const pr=Math.min(1,Math.max(0,1-dist/b.dist0)),arc=Math.min(5,b.dist0*(b.mode==="flight"?.2:.06));
+        b.Z=HAND+arc*Math.sin(Math.PI*pr);
+        const p0=proj(b.X,b.Y,0),p1=proj(tx,ty,0);b.ang=Math.atan2((p1.v-p0.v)*1,(p1.u-p0.u))*180/Math.PI;
+      }
+    }
+    if(b.mode==="held"){
+      const l=A.lines.find(x=>x.from===b.holder&&!x.used);
+      if(l&&finished(off[b.holder])&&remaining(off[l.to])<=LEAD){
+        l.used=true;const h=off[b.holder],tg=off[l.to];
+        b.mode="flight";b.target=l.to;b.X=h.X+.6;b.Y=h.Y+.3;b.dist0=Math.max(1,Math.hypot(tg.X-b.X,tg.Y-b.Y));
+      }
+    }
+    if(b.mode==="held"){
+      const h=off[b.holder];
+      if(!h.carry&&finished(h)&&!A.lines.some(x=>x.from===b.holder&&!x.used)){
+        h.carry=true; /* ball carrier with nothing left to do runs straight upfield */
+        if(h.Y<FLEN-1){if(!h.path){h.path=[{X:h.X,Y:h.Y}];h.seg=1}h.path.push({X:h.X,Y:FLEN-1});moving=true}
+      }
+    }
+    if(b.mode==="snap"||b.mode==="flight"||(b.mode==="held"&&A.lines.some(x=>x.from===b.holder&&!x.used)))moving=true;
+    paintAnim(A);
+    if(!moving){A.done=true;updateRun();return}
+    A.raf=requestAnimationFrame(tick);
+  };
+  A.raf=requestAnimationFrame(tick);
+  drawRoutes();updateRun();
+}
+function resetPlay(){stopAnim();renderField();drawRoutes();ballIdle();updateRun()}
+
+/* ----- controls ----- */
+const HINTS={
+  1:"Choose formations, drop players in, then press SET.",
+  pen:"Line: press a player and drag to draw where they go.",
+  arrow:"Arrow: tap the end of a route (or its player) to add or remove an arrowhead.",
+  block:"Block: tap the end of a route (or its player) to add or remove a block stop.",
+  ball:"Ball: press the passer or ball carrier and drag to the receiver. The snap from C to QB is automatic. The throw happens when the receiver is 10 yd from the end of his route. Whoever ends up with the ball runs for the end zone.",
+  3:"Press PLAY. The ball snaps from C to QB. Offense runs at 5/10, defense reacts at 1/10."
+};
+function updateRun(){
+  const on=RUN.on,st=RUN.step,lock=on&&st>1;
+  document.body.classList.toggle("run",on);
+  $("#runbar").hidden=!on;
+  $("#tabLineup").classList.toggle("on",!on);$("#tabRun").classList.toggle("on",on);
+  document.querySelectorAll("#steps span").forEach(s=>{const n=+s.dataset.s;s.classList.toggle("on",n===st);s.classList.toggle("done",n<st)});
+  for(const el of [$(".controls"),$("#lineup"),$("#panel")])if(el)el.inert=lock;
+  document.body.classList.toggle("runlock",lock);
+  fieldEl.classList.toggle("locked",lock);
+  fieldEl.classList.toggle("drawing",on&&st===2);
+  $("#rhint").textContent=st===2?HINTS[RUN.tool]:HINTS[st];
+  $("#tools").hidden=st!==2;
+  $("#ink").hidden=st!==2||RUN.tool!=="pen";
+  document.querySelectorAll("#tools .tl").forEach(b=>b.classList.toggle("on",b.dataset.t===RUN.tool));
+  document.querySelectorAll("#ink .sw").forEach(b=>b.classList.toggle("on",INK[b.dataset.c]===RUN.color));
+  const A=RUN.anim,n=hasAny();
+  $("#rBack").hidden=st===1;
+  $("#rUndo").hidden=st!==2;$("#rClear").hidden=st!==2;
+  $("#rUndo").disabled=!RUN.undo.length;$("#rClear").disabled=!n;
+  $("#rSet").hidden=st===3;
+  $("#rSet").disabled=st===2&&!RUN.routes.some(Boolean);
+  $("#rPlay").hidden=st!==3;$("#rReset").hidden=st!==3;
+  $("#rPlay").disabled=!!(A&&!A.done);
+  $("#rPlay").textContent=A&&A.done?"Replay":A?"Playing":"Play";
+  $("#rBack").textContent=st===2?"Edit lineup":"Edit play";
+  if(!A)ballIdle();
+}
+function clearPlay(){RUN.routes.fill(null);RUN.balls=[];RUN.undo=[];RUN.drawing=null}
+function setMode(on){
+  stopAnim();RUN.on=on;RUN.step=1;clearPlay();
+  if(sel){sel=null;document.body.classList.remove("sheet")}
+  renderField();renderPanel();drawRoutes();updateRun();
+}
+$("#tabLineup").addEventListener("click",()=>{if(RUN.on)setMode(false)});
+$("#tabRun").addEventListener("click",()=>{if(!RUN.on)setMode(true)});
+$("#rSet").addEventListener("click",()=>{
+  if(RUN.step===1){if(sel){sel=null;document.body.classList.remove("sheet");renderField();renderPanel()}RUN.step=2}
+  else if(RUN.step===2){if(!RUN.routes.some(Boolean))return;RUN.step=3}
+  drawRoutes();updateRun();
+});
+$("#rBack").addEventListener("click",()=>{
+  stopAnim();renderField();
+  RUN.step=Math.max(1,RUN.step-1);
+  if(RUN.step===1)clearPlay();
+  drawRoutes();updateRun();
+});
+$("#rUndo").addEventListener("click",()=>{
+  const s=RUN.undo.pop();if(!s)return;
+  const o=JSON.parse(s);RUN.routes=o.routes;RUN.balls=o.balls;
+  drawRoutes();updateRun();
+});
+$("#rClear").addEventListener("click",()=>{pushUndo();RUN.routes.fill(null);RUN.balls=[];drawRoutes();updateRun()});
+$("#rPlay").addEventListener("click",startPlay);
+$("#rReset").addEventListener("click",resetPlay);
+document.querySelectorAll("#ink .sw").forEach(b=>b.addEventListener("click",()=>{RUN.color=INK[b.dataset.c];updateRun()}));
+document.querySelectorAll("#tools .tl").forEach(b=>b.addEventListener("click",()=>{RUN.tool=b.dataset.t;updateRun()}));
 
 /* ---------- boot ---------- */
 if(!load()){

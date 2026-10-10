@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="A free, unofficial fan lineup visualizer.">
+<title>Custom フットボール pk-lineup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Roboto+Condensed:wght@600;700&family=Noto+Sans+JP:wght@700;900&display=swap">
+<style>
+/* Layout: black technical shell with hairline rules, mono micro-labels and one vermilion accent; the green pitch is the only color field. */
+:root{
+  color-scheme:dark;
+  --bg:#050505; --surface:#0c0c0c; --raise:#151515; --line:#262626; --line-2:#3c3c3c;
+  --ink:#f1f1f1; --muted:#c8c8c8; --faint:#9b9b9b;
+  --accent:#f23d2c; --accent-ink:#050505;
+  --f-ui:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-cond:"Roboto Condensed","Arial Narrow",Arial,sans-serif;
+  --f-mono:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-jp:"Noto Sans JP","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  --field-a:#265727; --field-b:#204b22; --def-ink:#ff7563;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14.5px;line-height:1.5;padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:18px}
+.eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 14px;white-space:nowrap;font:500 11px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.eyebrow .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
+.eyebrow span{color:var(--faint);margin-left:6px}
+@media (max-width:430px){.eyebrow{font-size:10px;letter-spacing:.08em;gap:8px}}
+h1{font:700 clamp(28px,5.6vw,46px)/1.08 var(--f-ui);letter-spacing:-.015em;margin:0;text-wrap:balance}
+h1 .w1{font-weight:300;color:#dedede}
+h1 .jp,h1 .w1,h1 .w3{white-space:nowrap}
+h1 .jp{font-family:var(--f-jp);font-weight:900;letter-spacing:.01em}
+.sub{color:var(--muted);margin:12px 0 0;max-width:60ch}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;padding-top:16px;border-top:1px solid var(--line)}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl>span{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:baseline;gap:8px}
+.ctl>span em{font:700 11px/1 var(--f-jp);letter-spacing:.06em;color:var(--faint);font-style:normal}
+select,input[type=search]{font:400 13px var(--f-mono);color:var(--ink);background-color:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:9px 12px;min-height:40px;max-width:100%}
+select{appearance:none;-webkit-appearance:none;padding-right:32px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%238c8c8c' stroke-width='1.5'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+input[type=search]::placeholder{color:var(--faint)}
+.btn{font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:0 14px;min-height:40px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--accent-ink);border-color:var(--ink)}
+.btn.primary:hover{background:#fff}
+.btn.sm{min-height:34px;padding:0 10px;font-size:11px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chk{display:flex;align-items:center;gap:10px;min-height:40px;font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.chk input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.note{color:var(--muted);font:400 12px/1.55 var(--f-mono);margin:0;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;max-width:100ch}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.fieldcol{min-width:0}
+.field{position:relative;aspect-ratio:4/5;width:100%;max-width:760px;margin-inline:auto;border-radius:3px;overflow:hidden;container-type:inline-size;background:var(--field-a);border:1px solid var(--line-2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 -2.4cqw 5cqw rgba(0,0,0,.28),0 10px 28px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none}
+.field svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tag{position:absolute;left:2.4cqw;display:flex;gap:1.2cqw;align-items:baseline;font:500 max(9px,2.2cqw)/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.78);pointer-events:none}
+.tag em{font:700 max(9px,2.2cqw)/1 var(--f-jp);font-style:normal;letter-spacing:.06em;color:rgba(255,255,255,.55)}
+.tag.d{top:2.2cqw}.tag.o{bottom:2.2cqw}
+.slot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:.5cqw;touch-action:none;cursor:grab;color:#fff}
+.slot.drag{cursor:grabbing;z-index:6}
+.slot.sel{z-index:5}
+.tok{width:9.6cqw;height:9.6cqw;border-radius:50%;display:grid;place-items:center;flex:none}
+.tok.empty{border:.45cqw dashed rgba(255,255,255,.75);background:rgba(0,0,0,.28);box-shadow:0 .6cqw 1cqw rgba(0,0,0,.35);font:700 max(9px,2.9cqw)/1 var(--f-cond);letter-spacing:.04em}
+.tok.ph{background:hsl(var(--h) 38% 34%);border:.35cqw solid rgba(255,255,255,.88);box-shadow:0 .6cqw 1cqw rgba(0,0,0,.4);font:500 max(8px,2.4cqw)/1 var(--f-mono)}
+.tok.sprite{width:11.5cqw;height:11.5cqw;border-radius:0}
+.tok.sprite img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 .4cqw .5cqw rgba(0,0,0,.45))}
+.slot.sel .tok{outline:.5cqw solid #fff;outline-offset:.35cqw}
+.slot.sel .tok.sprite{outline:none;filter:drop-shadow(0 0 .5cqw #fff) drop-shadow(0 0 .5cqw #fff)}
+.lab{background:rgba(0,0,0,.88);border-radius:.6cqw;padding:.35cqw .8cqw;font:600 max(6.5px,1.7cqw)/1.1 var(--f-cond);letter-spacing:.03em;text-align:center;white-space:nowrap;text-transform:uppercase}
+.lab b{display:block;font:500 max(5.5px,1.45cqw)/1.2 var(--f-mono);letter-spacing:.12em}
+.slot.off .lab b{color:#ffffff}.slot.def .lab b{color:#ff7563}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px;max-height:calc(100vh - 32px);min-height:0}
+.hint{color:var(--muted);font:400 12px/1.55 var(--f-mono)}
+#pbody{display:flex;flex-direction:column;gap:12px;min-height:0;flex:1}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.phead h2{font:700 18px/1.1 var(--f-ui);letter-spacing:-.005em;margin:0}
+.prow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.prow label{display:flex;align-items:center;gap:10px;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.grid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:6px;align-content:start;padding:2px;scrollbar-color:var(--line-2) transparent}
+.cell{display:flex;flex-direction:column;align-items:center;gap:4px;font:500 11px/1.15 var(--f-ui);color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:2px;padding:7px 3px;cursor:pointer;min-width:0}
+.cell:hover{border-color:var(--line-2);background:#1b1b1b}
+.cell.cur{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.cell.used{opacity:.45}
+.cell .t{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:#fff;font:500 10px var(--f-mono)}
+.cell .t.sp{border-radius:0;background:none}
+.cell .t img{width:100%;height:100%;object-fit:contain}
+.cell .n{max-width:100%;overflow-wrap:anywhere;text-align:center}
+.cell .d{color:var(--faint);font:400 10px var(--f-mono)}
+#pclose{display:none}
+@media (max-width:959px){
+  .main{grid-template-columns:minmax(0,1fr)}
+  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:76vh;max-height:76dvh;border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .2s ease;z-index:20;box-shadow:0 -12px 32px rgba(0,0,0,.7);visibility:hidden}
+  .panel.open{transform:none;visibility:visible}
+  .panel #phint{display:none}
+  #pclose{display:inline-block}
+  body.sheet{padding-bottom:80vh}
+}
+@media (max-width:560px){
+  .controls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  .controls .ctl{grid-column:span 3}
+  .controls select{width:100%}
+  .controls .btn{grid-column:span 2;padding:0 4px;font-size:11px;letter-spacing:.04em;white-space:nowrap}
+  .controls .chk{grid-column:1/-1;min-height:28px}
+  .wrap{gap:16px}
+}
+.lineup,.dhint{display:none}
+.slot.over .tok{outline:.5cqw solid var(--accent);outline-offset:.35cqw}
+.slot.over .tok.sprite{outline:none;filter:drop-shadow(0 0 .6cqw var(--accent)) drop-shadow(0 0 .6cqw var(--accent))}
+.legal{margin:0;max-width:78ch;color:var(--faint);font:400 11px/1.6 var(--f-mono)}
+@media (min-width:960px){
+  body{padding-block:22px 30px}
+  .wrap{max-width:1440px;grid-template-columns:minmax(0,1fr) auto;column-gap:28px;row-gap:16px;align-items:end}
+  .wrap>header{grid-column:1}
+  .wrap>.controls{grid-column:2;border-top:0;padding-top:0;justify-content:flex-end;align-items:flex-end}
+  .wrap>.note,.wrap>.main,.wrap>.legal{grid-column:1/-1}
+  h1{font-size:34px}
+  .eyebrow{margin-bottom:10px}
+  .sub{display:none}
+  .main{grid-template-columns:250px minmax(0,1fr) 380px;gap:20px;align-items:start}
+  .fieldcol{display:flex;justify-content:center}
+  .field{width:min(100%,calc((100vh - 140px)*.8));max-width:900px;margin-inline:auto}
+  .slot{padding:1cqw}
+  .lineup{display:flex;flex-direction:column;gap:1px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 10px;scrollbar-color:var(--line-2) transparent}
+  .ln-h{display:flex;align-items:baseline;gap:8px;margin:6px 6px 6px;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .ln-h:first-child{margin-top:0}
+  .ln-h em{font:700 11px/1 var(--f-jp);font-style:normal;color:var(--faint)}
+  .ln-row{display:grid;grid-template-columns:38px 22px minmax(0,1fr);gap:8px;align-items:center;min-height:26px;padding:1px 6px;border:1px solid transparent;border-radius:2px;background:none;color:var(--ink);cursor:pointer;text-align:left;font:500 13px/1.2 var(--f-ui)}
+  .ln-row:hover{background:var(--raise)}
+  .ln-row.sel{background:var(--raise);border-color:var(--ink)}
+  .ln-pos{font:500 11px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
+  .ln-row.off .ln-pos{color:var(--ink)}.ln-row.def .ln-pos{color:var(--def-ink)}
+  .ln-ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:500 9px var(--f-mono);color:#fff;border:1px dashed var(--line-2)}
+  .ln-ic.has{border:0}.ln-ic.sp{border-radius:0;background:none}
+  .ln-ic img{width:100%;height:100%;object-fit:contain}
+  .ln-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ln-name.none{color:var(--faint)}
+  .panel{position:sticky;top:16px;max-height:calc(100vh - 32px)}
+  .dhint{display:block;margin:0;color:var(--muted);font:400 12px/1.5 var(--f-mono)}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+  .cell{padding:9px 4px}
+  .cell[draggable="true"]{cursor:grab}
+  .cell .t{width:56px;height:56px;font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){.panel{transition:none}}
+</style>
+
+<style>html{color-scheme:dark;background:#050505}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow"><i class="dot"></i>Scenario visualizer<span>11 v 11 · Original 151</span></p>
+    <h1><span class="w1">Custom</span> <span class="jp" lang="ja">フットボール</span> <span class="w3">pk-lineup</span></h1>
+    <p class="sub">Fill an offense and a defense from the original 151. Tap a slot to choose a player, drag a slot to build your own formation.</p>
+  </header>
+
+  <div class="controls">
+    <label class="ctl"><span>Defense <em lang="ja">守備</em></span><select id="fDef"></select></label>
+    <label class="ctl"><span>Offense <em lang="ja">攻撃</em></span><select id="fOff"></select></label>
+    <button class="btn" id="shuffle" type="button">Shuffle</button>
+    <button class="btn" id="clearAll" type="button">Clear lineup</button>
+    <button class="btn" id="loadBtn" type="button">My sprites</button>
+    <label class="chk"><input type="checkbox" id="names" checked> Show names</label>
+    <input type="file" id="files" accept="image/*" multiple hidden>
+  </div>
+  <p class="note" id="spNote" hidden><span id="spStatus"></span><button class="btn sm" id="spClear" type="button" hidden>Remove custom sprites</button></p>
+
+  <div class="main">
+    <aside class="lineup" id="lineup" aria-label="Lineup"></aside>
+    <div class="fieldcol"><div class="field" id="field"></div></div>
+    <aside class="panel" id="panel" aria-label="Player picker">
+      <div id="phint" class="hint">Select a slot on the field to choose who plays there.</div>
+      <div id="pbody" hidden>
+        <div class="phead"><h2 id="ptitle"></h2><button class="btn sm" id="pclose" type="button">Close</button></div>
+        <p class="dhint">Drag a character onto a position on the field, or select a position and click a character.</p>
+        <div class="prow" id="prow">
+          <label>Position <select id="posSel"></select></label>
+          <button class="btn sm" id="pclear" type="button">Remove player</button>
+        </div>
+        <input id="q" type="search" placeholder="Search name or number" autocomplete="off">
+        <div class="grid" id="grid"></div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="legal">Unofficial, free fan project made for fun. Not affiliated with or endorsed by Nintendo, Game Freak, Creatures or The Pokémon Company. Pokémon and Pokémon character names are trademarks of their respective owners. Character images are loaded from a public sprite collection and are not stored on this site.</p>
+</div>
+
+<script>
+const DEX="Bulbasaur,Ivysaur,Venusaur,Charmander,Charmeleon,Charizard,Squirtle,Wartortle,Blastoise,Caterpie,Metapod,Butterfree,Weedle,Kakuna,Beedrill,Pidgey,Pidgeotto,Pidgeot,Rattata,Raticate,Spearow,Fearow,Ekans,Arbok,Pikachu,Raichu,Sandshrew,Sandslash,Nidoran♀,Nidorina,Nidoqueen,Nidoran♂,Nidorino,Nidoking,Clefairy,Clefable,Vulpix,Ninetales,Jigglypuff,Wigglytuff,Zubat,Golbat,Oddish,Gloom,Vileplume,Paras,Parasect,Venonat,Venomoth,Diglett,Dugtrio,Meowth,Persian,Psyduck,Golduck,Mankey,Primeape,Growlithe,Arcanine,Poliwag,Poliwhirl,Poliwrath,Abra,Kadabra,Alakazam,Machop,Machoke,Machamp,Bellsprout,Weepinbell,Victreebel,Tentacool,Tentacruel,Geodude,Graveler,Golem,Ponyta,Rapidash,Slowpoke,Slowbro,Magnemite,Magneton,Farfetch'd,Doduo,Dodrio,Seel,Dewgong,Grimer,Muk,Shellder,Cloyster,Gastly,Haunter,Gengar,Onix,Drowzee,Hypno,Krabby,Kingler,Voltorb,Electrode,Exeggcute,Exeggutor,Cubone,Marowak,Hitmonlee,Hitmonchan,Lickitung,Koffing,Weezing,Rhyhorn,Rhydon,Chansey,Tangela,Kangaskhan,Horsea,Seadra,Goldeen,Seaking,Staryu,Starmie,Mr. Mime,Scyther,Jynx,Electabuzz,Magmar,Pinsir,Tauros,Magikarp,Gyarados,Lapras,Ditto,Eevee,Vaporeon,Jolteon,Flareon,Porygon,Omanyte,Omastar,Kabuto,Kabutops,Aerodactyl,Snorlax,Articuno,Zapdos,Moltres,Dratini,Dragonair,Dragonite,Mewtwo,Mew".split(",");
+
+const norm=s=>s.toLowerCase().replace(/♀/g,"f").replace(/♂/g,"m").replace(/[^a-z0-9]/g,"");
+const NORM=new Map(DEX.map((n,i)=>[norm(n),i+1]));
+const pad=n=>String(n).padStart(3,"0");
+
+const OL=()=>[["LT",30,57],["LG",40,57],["C",50,57],["RG",60,57],["RT",70,57]];
+const OFF={
+  "I-Formation":[...OL(),["TE",80,57],["WR",7,57],["WR",93,62],["QB",50,68.5],["FB",50,80.5],["HB",50,92.5]],
+  "Shotgun":[...OL(),["TE",80,57],["WR",7,57],["WR",93,62],["WR",20,62],["QB",50,70],["HB",63,70]],
+  "Spread, 4 WR":[...OL(),["WR",7,57],["WR",20,62],["WR",80,62],["WR",93,57],["QB",50,69],["HB",37,69]],
+  "Singleback":[...OL(),["TE",20,57],["TE",80,57],["WR",7,62],["WR",93,62],["QB",50,69],["HB",50,83]],
+  "Goal line":[...OL(),["TE",20,57],["TE",80,57],["TE",89,62],["QB",50,68.5],["FB",50,80.5],["HB",50,92.5]]
+};
+const DL4=()=>[["DE",32,42],["DT",44,42],["DT",56,42],["DE",68,42]];
+const DEF={
+  "3-4":[["DE",36,42],["NT",50,42],["DE",64,42],["OLB",24,36],["ILB",40,29],["ILB",60,29],["OLB",76,36],["CB",7,33],["CB",93,33],["S",36,13],["S",64,13]],
+  "4-3":[...DL4(),["OLB",24,31],["MLB",50,29],["OLB",76,31],["CB",7,33],["CB",93,33],["S",36,13],["S",64,13]],
+  "Nickel 4-2-5":[...DL4(),["LB",42,29],["LB",58,29],["CB",7,33],["CB",93,33],["NCB",24,34],["S",38,13],["S",62,13]],
+  "Dime 4-1-6":[...DL4(),["LB",50,29],["CB",7,33],["CB",93,33],["NCB",24,34],["NCB",76,34],["S",36,13],["S",64,13]]
+};
+OFF["Custom"]=OFF["Shotgun"];
+DEF["Custom"]=DEF["4-3"];
+const PRESETS={off:OFF,def:DEF};
+const POS=["QB","HB","FB","WR","TE","LT","LG","C","RG","RT","DE","DT","NT","OLB","ILB","MLB","LB","CB","NCB","S","FS","SS","K","P"];
+
+const SAMPLE_OFF=[9,76,3,89,115,34,135,85,94,128,112];
+const SAMPLE_DEF=[68,143,67,57,24,62,28,123,141,82,105];
+
+const KEY="dex-gridiron-v1";
+const state={off:{form:"I-Formation",slots:[]},def:{form:"3-4",slots:[]},names:true};
+let sel=null;
+const sprites=new Map();
+/* Sprites are linked from a public sprite collection, not stored on this site. If a source fails, the next one is tried, then a number token is shown. */
+const SPRITE_ROOT=["https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/","https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"];
+const SPRITE_PATH={art:n=>"other/official-artwork/"+n+".png",small:n=>n+".png"};
+const srcIdx={art:new Map(),small:new Map()};
+function remoteUrl(kind,n){
+  const i=srcIdx[kind].get(n)||0;
+  return i<SPRITE_ROOT.length?SPRITE_ROOT[i]+SPRITE_PATH[kind](n):null;
+}
+function spriteFor(n,kind){
+  const mine=sprites.get(n);
+  if(mine)return {url:mine,remote:false};
+  const u=remoteUrl(kind,n);
+  return u?{url:u,remote:true}:null;
+}
+function imgTag(sp,kind,n,extra){
+  return `<img src="${sp.url}" alt=""${extra||""}${sp.remote?` data-rk="${kind}" data-n="${n}"`:""}>`;
+}
+let rerenderQueued=false;
+function queueRerender(){
+  if(rerenderQueued)return;rerenderQueued=true;
+  requestAnimationFrame(()=>{rerenderQueued=false;renderField();if(sel)renderGrid()});
+}
+document.addEventListener("error",e=>{
+  const t=e.target;
+  if(!t||t.tagName!=="IMG"||!t.dataset.rk)return;
+  const kind=t.dataset.rk,n=+t.dataset.n;
+  srcIdx[kind].set(n,(srcIdx[kind].get(n)||0)+1);
+  const nx=remoteUrl(kind,n);
+  if(nx)t.src=nx;else queueRerender();
+},true);
+const wide=matchMedia("(min-width:960px)");
+const $=s=>document.querySelector(s);
+
+function build(side,form,dexList){
+  const src=PRESETS[side][form];
+  const old=state[side].slots;
+  state[side]={form,slots:src.map((p,i)=>({pos:p[0],x:p[1],y:p[2],dex:dexList?(dexList[i]??null):(old[i]?old[i].dex:null)}))};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(!s)return false;
+    for(const side of ["off","def"]){
+      const o=s[side];
+      if(!o||!Array.isArray(o.slots)||o.slots.length!==11)return false;
+      const okForm=o.form==="Custom"||PRESETS[side][o.form];
+      if(!okForm)return false;
+      state[side]={form:o.form,slots:o.slots.map((t,k)=>{const pr=o.form==="Custom"?null:PRESETS[side][o.form][k];return {
+        pos:pr?pr[0]:(POS.includes(t.pos)?t.pos:"WR"),
+        x:pr?pr[1]:Math.min(96,Math.max(4,+t.x||50)),y:pr?pr[2]:Math.min(96,Math.max(4,+t.y||50)),
+        dex:Number.isInteger(t.dex)&&t.dex>=1&&t.dex<=151?t.dex:null};})};
+    }
+    state.names=s.names!==false;
+    return true;
+  }catch(e){return false}
+}
+
+/* ---------- field ---------- */
+function fieldSvg(){
+  let s='<svg viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true">'+
+    '<defs>'+
+    '<filter id="grass" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="2.4 0.7" numOctaves="2" seed="7"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.05"/></filter>'+
+    '<linearGradient id="lit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset=".5" stop-color="#000" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/></linearGradient>'+
+    '<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient>'+
+    '</defs>';
+  for(let i=0;i<10;i++)s+=`<rect x="0" y="${i*12.5}" width="100" height="12.5" fill="${i%2?'var(--field-b)':'var(--field-a)'}"/>`;
+  for(let k=1;k<10;k++){
+    const y=k*12.5;
+    s+= k===5
+      ?`<line x1="0" x2="100" y1="${y}" y2="${y}" stroke="#4aa3ff" stroke-width=".7" opacity=".9"/>`
+      :`<line x1="0" x2="100" y1="${y}" y2="${y}" stroke="#fff" stroke-width=".35" opacity=".5"/>`;
+  }
+  for(let y=1.25;y<125;y+=2.5){
+    s+=`<line x1="37" x2="38.8" y1="${y}" y2="${y}" stroke="#fff" stroke-width=".28" opacity=".55"/>`;
+    s+=`<line x1="61.2" x2="63" y1="${y}" y2="${y}" stroke="#fff" stroke-width=".28" opacity=".55"/>`;
+  }
+  s+='<line x1="2" x2="2" y1="0" y2="125" stroke="#fff" stroke-width=".6" opacity=".8"/><line x1="98" x2="98" y1="0" y2="125" stroke="#fff" stroke-width=".6" opacity=".8"/>';
+  s+='<rect width="100" height="125" filter="url(#grass)" opacity=".16" style="mix-blend-mode:multiply"/>';
+  s+='<rect width="100" height="125" fill="url(#lit)"/><rect width="100" height="125" fill="url(#vig)"/>';
+  return s+'</svg>';
+}
+const fieldEl=$("#field");
+fieldEl.innerHTML=fieldSvg()+'<div class="tag d">Defense <em lang="ja">守備</em></div><div class="tag o">Offense <em lang="ja">攻撃</em></div><div id="slots"></div>';
+const slotsEl=$("#slots");
+
+function slotNode(side,i,s){
+  const d=document.createElement("div");
+  const isSel=sel&&sel.side===side&&sel.i===i;
+  d.className="slot "+side+(isSel?" sel":"");
+  d.style.left=s.x+"%";d.style.top=s.y+"%";
+  d.dataset.side=side;d.dataset.i=i;
+  d.tabIndex=0;d.setAttribute("role","button");
+  d.setAttribute("aria-label",(side==="off"?"Offense ":"Defense ")+s.pos+": "+(s.dex?DEX[s.dex-1]:"empty"));
+  const sp=s.dex&&spriteFor(s.dex,"art");
+  let tok;
+  if(!s.dex)tok=`<div class="tok empty">${s.pos}</div>`;
+  else if(sp)tok=`<div class="tok sprite">${imgTag(sp,"art",s.dex,' decoding="async" draggable="false"')}</div>`;
+  else tok=`<div class="tok ph" style="--h:${(s.dex*47)%360}">${pad(s.dex)}</div>`;
+  const lab=s.dex?`<div class="lab"><b>${s.pos}</b>${state.names?DEX[s.dex-1]:""}</div>`:"";
+  d.innerHTML=tok+lab;
+  wire(d,side,i);
+  return d;
+}
+
+function wire(d,side,i){
+  let start=null,moved=false;
+  d.addEventListener("pointerdown",e=>{
+    start={x:e.clientX,y:e.clientY};moved=false;
+    try{d.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  d.addEventListener("pointermove",e=>{
+    if(!start)return;
+    if(!moved&&Math.hypot(e.clientX-start.x,e.clientY-start.y)<7)return;
+    moved=true;d.classList.add("drag");
+    const r=fieldEl.getBoundingClientRect();
+    const s=state[side].slots[i];
+    s.x=Math.min(96,Math.max(4,(e.clientX-r.left)/r.width*100));
+    s.y=Math.min(96,Math.max(4,(e.clientY-r.top)/r.height*100));
+    d.style.left=s.x+"%";d.style.top=s.y+"%";
+  });
+  d.addEventListener("pointerup",()=>{
+    if(!start)return;
+    start=null;
+    if(moved){state[side].form="Custom";fillSelects();save();renderField();}
+    else choose(side,i);
+  });
+  d.addEventListener("pointercancel",()=>{start=null;renderField()});
+  d.addEventListener("keydown",e=>{
+    const s=state[side].slots[i];
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();choose(side,i);return}
+    const m={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+    if(m){
+      e.preventDefault();
+      s.x=Math.min(96,Math.max(4,s.x+m[0]));s.y=Math.min(96,Math.max(4,s.y+m[1]));
+      state[side].form="Custom";fillSelects();save();renderField();
+      const n=slotsEl.querySelectorAll(".slot."+side)[i];if(n)n.focus();
+    }
+  });
+}
+
+function renderField(){
+  slotsEl.replaceChildren();
+  for(const side of ["def","off"])state[side].slots.forEach((s,i)=>slotsEl.appendChild(slotNode(side,i,s)));
+  renderLineup();
+}
+function renderLineup(){
+  const el=$("#lineup");
+  if(!wide.matches){el.replaceChildren();return}
+  let h="";
+  for(const [side,label,jp] of [["off","Offense","攻撃"],["def","Defense","守備"]]){
+    h+=`<div class="ln-h">${label} <em lang="ja">${jp}</em></div>`;
+    state[side].slots.forEach((s,i)=>{
+      const on=sel&&sel.side===side&&sel.i===i;
+      let ic;
+      if(!s.dex)ic='<span class="ln-ic"></span>';
+      else{
+        const sp=spriteFor(s.dex,"small");
+        ic=sp?`<span class="ln-ic has sp">${imgTag(sp,"small",s.dex,' decoding="async"')}</span>`:`<span class="ln-ic has" style="background:hsl(${(s.dex*47)%360} 38% 34%)">${s.dex}</span>`;
+      }
+      h+=`<button type="button" class="ln-row ${side}${on?" sel":""}" data-side="${side}" data-i="${i}"><span class="ln-pos">${s.pos}</span>${ic}<span class="ln-name${s.dex?"":" none"}">${s.dex?DEX[s.dex-1]:"Empty"}</span></button>`;
+    });
+  }
+  el.innerHTML=h;
+}
+
+/* ---------- picker ---------- */
+function choose(side,i){
+  sel={side,i};
+  renderField();renderPanel();
+  if(!wide.matches){
+    document.body.classList.add("sheet");
+    requestAnimationFrame(()=>{
+      const el=document.querySelector(".slot.sel");
+      if(!el)return;
+      const r=el.getBoundingClientRect(),limit=innerHeight*0.22;
+      if(r.bottom>limit||r.top<0)scrollBy({top:r.bottom-limit,behavior:"smooth"});
+    });
+  }
+}
+function closePanel(){
+  sel=null;document.body.classList.remove("sheet");
+  renderField();renderPanel();
+}
+function usedMap(){
+  const m=new Map();
+  for(const side of ["off","def"])state[side].slots.forEach((s,i)=>{if(s.dex)m.set(s.dex,{side,i})});
+  return m;
+}
+function renderPanel(){
+  const p=$("#panel"),desk=wide.matches;
+  if(!sel&&!desk){p.classList.remove("open");$("#pbody").hidden=true;$("#phint").hidden=false;return}
+  p.classList.toggle("open",!!sel);
+  $("#pbody").hidden=false;$("#phint").hidden=true;
+  $("#prow").hidden=!sel;
+  if(sel){
+    const s=state[sel.side].slots[sel.i];
+    $("#ptitle").textContent=(sel.side==="off"?"Offense":"Defense")+" · "+s.pos;
+    $("#posSel").value=s.pos;
+  }else $("#ptitle").textContent="Original 151";
+  renderGrid();
+}
+function renderGrid(){
+  const s=sel?state[sel.side].slots[sel.i]:{dex:null};
+  const canDrag=matchMedia("(pointer:fine)").matches&&wide.matches;
+  const q=$("#q").value.trim().toLowerCase();
+  const used=usedMap();
+  let h="";
+  DEX.forEach((name,k)=>{
+    const n=k+1;
+    if(q&&!(name.toLowerCase().includes(q)||String(n)===q.replace(/^#?0*/,"")||pad(n).includes(q)))return;
+    const u=used.get(n);
+    const sp=spriteFor(n,"small");
+    const t=sp?`<span class="t sp">${imgTag(sp,"small",n,' loading="lazy" decoding="async"')}</span>`:`<span class="t" style="background:hsl(${(n*47)%360} 42% 38%)">${pad(n)}</span>`;
+    h+=`<button type="button"${canDrag?' draggable="true"':""} class="cell${s.dex===n?" cur":""}${u&&s.dex!==n?" used":""}" data-dex="${n}" title="${name}">${t}<span class="n">${name}</span><span class="d">#${pad(n)}</span></button>`;
+  });
+  const g=$("#grid"),st=g.scrollTop;
+  g.innerHTML=h||'<div class="hint">No match.</div>';
+  g.scrollTop=st;
+}
+function clearDex(n){for(const side of ["off","def"])state[side].slots.forEach(t=>{if(t.dex===n)t.dex=null})}
+function firstEmpty(){
+  for(const side of ["off","def"]){const i=state[side].slots.findIndex(t=>!t.dex);if(i>=0)return {side,i}}
+  return null;
+}
+function placeDex(side,i,n){
+  clearDex(n);state[side].slots[i].dex=n;save();
+  renderField();if(sel||wide.matches)renderPanel();
+}
+function assign(n){
+  clearDex(n);
+  state[sel.side].slots[sel.i].dex=n;
+  save();
+  if(wide.matches){
+    const list=state[sel.side].slots;
+    let nxt=-1;
+    for(let k=1;k<=list.length;k++){const j=(sel.i+k)%list.length;if(!list[j].dex){nxt=j;break}}
+    if(nxt>=0){sel={side:sel.side,i:nxt};renderField();renderPanel();return}
+  }
+  closePanel();
+}
+
+$("#grid").addEventListener("click",e=>{
+  const b=e.target.closest(".cell");if(!b)return;
+  if(!sel){const f=wide.matches?firstEmpty():null;if(!f)return;sel=f}
+  assign(+b.dataset.dex);
+});
+$("#q").addEventListener("input",()=>{if(sel||wide.matches)renderGrid()});
+/* desktop: lineup list, drag and drop from the roster */
+$("#lineup").addEventListener("click",e=>{
+  const b=e.target.closest(".ln-row");if(!b)return;
+  choose(b.dataset.side,+b.dataset.i);
+});
+let dragDex=0;
+const unmark=()=>document.querySelectorAll(".slot.over").forEach(n=>n.classList.remove("over"));
+$("#grid").addEventListener("dragstart",e=>{
+  const c=e.target.closest(".cell");if(!c)return;
+  dragDex=+c.dataset.dex;
+  e.dataTransfer.setData("text/plain",String(dragDex));e.dataTransfer.effectAllowed="copy";
+});
+$("#grid").addEventListener("dragend",()=>{dragDex=0;unmark()});
+fieldEl.addEventListener("dragover",e=>{
+  if(!dragDex)return;
+  const sl=e.target.closest(".slot");
+  unmark();
+  if(sl){e.preventDefault();e.dataTransfer.dropEffect="copy";sl.classList.add("over")}
+});
+fieldEl.addEventListener("dragleave",e=>{if(!fieldEl.contains(e.relatedTarget))unmark()});
+fieldEl.addEventListener("drop",e=>{
+  if(!dragDex)return;
+  const sl=e.target.closest(".slot");unmark();
+  if(!sl)return;
+  e.preventDefault();
+  const n=dragDex;dragDex=0;
+  placeDex(sl.dataset.side,+sl.dataset.i,n);
+});
+wide.addEventListener("change",()=>{
+  if(!wide.matches){document.body.classList.toggle("sheet",!!sel)}
+  renderField();renderPanel();
+});
+$("#pclose").addEventListener("click",closePanel);
+$("#pclear").addEventListener("click",()=>{
+  if(!sel)return;
+  state[sel.side].slots[sel.i].dex=null;save();
+  if(wide.matches){renderField();renderPanel()}else closePanel();
+});
+$("#posSel").addEventListener("change",e=>{
+  if(!sel)return;
+  state[sel.side].slots[sel.i].pos=e.target.value;state[sel.side].form="Custom";fillSelects();save();
+  renderField();$("#ptitle").textContent=(sel.side==="off"?"Offense":"Defense")+" · "+e.target.value;
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sel)closePanel()});
+
+/* ---------- controls ---------- */
+$("#posSel").innerHTML=POS.map(p=>`<option>${p}</option>`).join("");
+function fillSelects(){
+  for(const [side,id] of [["off","#fOff"],["def","#fDef"]]){
+    const el=$(id);
+    const names=Object.keys(PRESETS[side]);
+    el.innerHTML=names.map(n=>`<option>${n}</option>`).join("");
+    el.value=state[side].form;
+  }
+}
+$("#fOff").addEventListener("change",e=>{build("off",e.target.value);save();fillSelects();renderField();if(sel)renderPanel()});
+$("#fDef").addEventListener("change",e=>{build("def",e.target.value);save();fillSelects();renderField();if(sel)renderPanel()});
+$("#names").addEventListener("change",e=>{state.names=e.target.checked;save();renderField()});
+$("#shuffle").addEventListener("click",()=>{
+  const pool=Array.from({length:151},(_,i)=>i+1);
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  let k=0;
+  for(const side of ["def","off"])state[side].slots.forEach(s=>{s.dex=pool[k++]});
+  save();renderField();if(sel)renderPanel();
+});
+$("#clearAll").addEventListener("click",()=>{
+  for(const side of ["off","def"])build(side,state[side].form,Array(11).fill(null));
+  save();renderField();if(sel)renderPanel();
+});
+
+/* ---------- user-supplied sprites ---------- */
+function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("dex-gridiron",1);r.onupgradeneeded=()=>r.result.createObjectStore("s");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+async function idbPut(k,v){try{const db=await idb();db.transaction("s","readwrite").objectStore("s").put(v,k)}catch(e){}}
+async function idbAll(){
+  try{
+    const db=await idb();
+    return await new Promise(res=>{
+      const out=new Map();const rq=db.transaction("s").objectStore("s").openCursor();
+      rq.onsuccess=()=>{const c=rq.result;if(c){out.set(c.key,c.value);c.continue()}else res(out)};
+      rq.onerror=()=>res(out);
+    });
+  }catch(e){return new Map()}
+}
+async function idbClear(){try{const db=await idb();db.transaction("s","readwrite").objectStore("s").clear()}catch(e){}}
+
+function matchName(base){
+  const m=base.match(/^0*(\d{1,3})(?![0-9a-z])/i);
+  if(m){const n=+m[1];if(n>=1&&n<=151)return n}
+  return NORM.get(norm(base))||0;
+}
+function shrink(file){
+  return new Promise((res,rej)=>{
+    const u=URL.createObjectURL(file),im=new Image();
+    im.onload=()=>{
+      const k=Math.min(1,192/Math.max(im.width,im.height));
+      const c=document.createElement("canvas");
+      c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      URL.revokeObjectURL(u);res(c.toDataURL("image/png"));
+    };
+    im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("bad image"))};
+    im.src=u;
+  });
+}
+function spriteStatus(extra){
+  const n=sprites.size;
+  const msg=((n?`${n} custom sprite${n>1?"s":""} loaded.`:"")+(extra?" "+extra:"")).trim();
+  $("#spStatus").textContent=msg;
+  $("#spNote").hidden=!msg&&!n;
+  $("#spClear").hidden=!n;
+}
+$("#loadBtn").addEventListener("click",()=>$("#files").click());
+$("#files").addEventListener("change",async e=>{
+  const files=[...e.target.files];e.target.value="";
+  let ok=0;const skipped=[];
+  for(const f of files){
+    const dex=matchName(f.name.replace(/\.[^.]+$/,""));
+    if(!dex){skipped.push(f.name);continue}
+    try{const url=await shrink(f);sprites.set(dex,url);idbPut(dex,url);ok++}catch(err){skipped.push(f.name)}
+  }
+  spriteStatus(`Added ${ok}.`+(skipped.length?` Could not match ${skipped.length} file${skipped.length>1?"s":""}: ${skipped.slice(0,4).join(", ")}${skipped.length>4?"…":""}`:""));
+  renderField();if(sel)renderGrid();
+});
+$("#spClear").addEventListener("click",()=>{sprites.clear();idbClear();spriteStatus();renderField();if(sel)renderGrid()});
+
+/* ---------- boot ---------- */
+if(!load()){
+  build("off","I-Formation",SAMPLE_OFF);
+  build("def","3-4",SAMPLE_DEF);
+}
+$("#names").checked=state.names;
+fillSelects();spriteStatus();renderField();renderPanel();
+idbAll().then(m=>{if(m.size){m.forEach((v,k)=>sprites.set(k,v));spriteStatus();renderField();if(sel)renderGrid()}});
+</script>
+
+</body>
+</html>
